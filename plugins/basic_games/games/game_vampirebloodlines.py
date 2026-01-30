@@ -1,10 +1,10 @@
+import os
 from pathlib import Path
 from typing import List
 
 import mobase
 from PyQt6.QtCore import QDir
 
-from ..basic_features import BasicLocalSavegames
 from ..basic_game import BasicGame, BasicGameSaveGame
 
 
@@ -51,8 +51,8 @@ class VampireSaveGame(BasicGameSaveGame):
 
 class VampireTheMasqueradeBloodlinesGame(BasicGame):
     Name = "Vampire - The Masquerade: Bloodlines Support Plugin"
-    Author = "John"
-    Version = "1.0.0"
+    Author = "iunpause"
+    Version = "1.0.1"
     Description = "Adds support for Vampires: The Masquerade - Bloodlines"
 
     GameName = "Vampire - The Masquerade: Bloodlines"
@@ -62,37 +62,212 @@ class VampireTheMasqueradeBloodlinesGame(BasicGame):
     GameSteamId = [2600]
     GameGogId = [1207659240]
     GameBinary = "vampire.exe"
-    GameDataPath = "vampire"
+    GameDataPath = ""
     GameDocumentsDirectory = "%GAME_PATH%/vampire/cfg"
     GameSavesDirectory = "%GAME_PATH%/vampire/SAVE"
     GameSaveExtension = "sav"
     GameSupportURL = (
-        r"https://github.com/ModOrganizer2/modorganizer-basic_games/wiki/"
+        r"https://github.com/daulvec/Bloodlines_MO2_Plugin"
         "Game:-Vampire:-The-Masquerade-%E2%80%90-Bloodlines"
     )
 
     def init(self, organizer: mobase.IOrganizer) -> bool:
         super().init(organizer)
         self._register_feature(VampireModDataChecker())
-        self._register_feature(BasicLocalSavegames(self.savesDirectory()))
         return True
 
     def initializeProfile(self, directory: QDir, settings: mobase.ProfileSetting):
-        # Create .cfg files if they don't exist
-        for iniFile in self.iniFiles():
-            iniPath = Path(self.documentsDirectory().absoluteFilePath(iniFile))
-            if not iniPath.exists():
-                with open(iniPath, "w") as _:
-                    pass
+        # Create Bloodlines.ini vars
+        profile_path = Path(directory.absolutePath())
+        ini_path = profile_path / "bloodlines.ini"
+
+        # Create the file if it doesn't exist
+        if not ini_path.exists():
+            ini_path.write_text(
+                "[GAME]\n"
+                "GameData=\n"
+                "Saves=\n"
+                "CfgMod=\n"
+                "Arguments=\n",
+                encoding="utf-8",
+            )
+
+        # Write current profile name to a file that the launcher can read
+        self._write_current_profile_info(directory)
 
         super().initializeProfile(directory, settings)
+
+    def _write_current_profile_info(self, directory=None):
+        """Write current profile information for the launcher to use"""
+        try:
+            if directory is None:
+                # Called from dataDirectory - use organizer to get current profile path
+                profile_path = Path(self._organizer.profilePath())
+            else:
+                # Called from initializeProfile
+                profile_path = Path(directory.absolutePath())
+                
+            profile_name = profile_path.name
+            
+            # Write profile info to a temporary file in the MO2 root
+            mo2_root = profile_path.parent.parent  # profiles/../.. = MO2 root
+            launcher_info_file = mo2_root / "bloodlines_launcher_info.txt"
+            
+            launcher_info_file.write_text(
+                f"ACTIVE_PROFILE={profile_name}\n"
+                f"PROFILE_PATH={profile_path}\n"
+                f"TIMESTAMP={profile_path.stat().st_mtime}\n",
+                encoding="utf-8"
+            )
+        except Exception as e:
+            # Don't crash if this fails
+            pass
+
+    # Helper method to read GameData from bloodlines.ini
+    def _read_game_data_from_ini(self) -> str:
+        ini_path = Path(self._organizer.profilePath()) / "bloodlines.ini"
+
+        if not ini_path.exists():
+            return ""
+
+        game_data = ""
+
+        with ini_path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("GameData="):
+                    game_data = line[len("GameData=") :].strip()
+                    break
+
+        return game_data
+
+    def _read_saves_mod_from_ini(self) -> str:
+        
+        ini_path = Path(self._organizer.profilePath()) / "bloodlines.ini"
+
+        if not ini_path.exists():
+            return ""
+
+        saves_mod = ""
+
+        with ini_path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("Saves="):
+                    saves_mod = line[len("Saves=") :].strip()
+                    break
+
+        return saves_mod
+
+    def _read_cfg_mod_from_ini(self) -> str:
+        ini_path = Path(self._organizer.profilePath()) / "bloodlines.ini"
+
+        if not ini_path.exists():
+            return ""
+
+        cfg_mod = ""
+
+        with ini_path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("CfgMod="):
+                    cfg_mod = line[len("CfgMod=") :].strip()
+                    break
+
+        return cfg_mod
+
+    def _read_arguments_from_ini(self) -> str:
+        ini_path = Path(self._organizer.profilePath()) / "bloodlines.ini"
+
+        if not ini_path.exists():
+            return ""
+
+        arguments = ""
+
+        with ini_path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("Arguments="):
+                    arguments = line[len("Arguments=") :].strip()
+                    break
+
+        return arguments
+
+    def dataDirectory(self) -> QDir:
+        game_data = self._read_game_data_from_ini()
+        
+        # Write game directory path for the launcher
+        try:
+            launcher_game_path = os.path.join(self.gameDirectory().absolutePath(), 'launcher_game_path.txt')
+            with open(launcher_game_path, 'w') as f:
+                f.write(self.gameDirectory().absolutePath())
+        except Exception:
+            # Fail silently - don't break the plugin if file writing fails
+            pass
+        
+        # If GameData is blank, use the game directory root
+        if not game_data:
+            return self.gameDirectory()
+
+        return QDir(self.gameDirectory().absoluteFilePath(game_data))
+
+    def savesDirectory(self) -> QDir:
+
+        saves_mod = self._read_saves_mod_from_ini()
+        
+        if saves_mod:
+            mods_path = Path(self._organizer.modsPath()) / saves_mod / "save"
+            return QDir(str(mods_path))
+        
+        game_data = self._read_game_data_from_ini()
+
+        # If GameData is blank, check common save locations in order of preference
+        if not game_data:
+            # Check for common save directories
+            potential_save_dirs = [
+                "Unofficial_Patch/save",  # Unofficial Patch location
+                "vampire/save",           # Stock game location  
+                "save",                   # Root save location
+            ]
+            
+            for save_dir in potential_save_dirs:
+                save_path = Path(self.gameDirectory().absolutePath()) / save_dir
+                if save_path.exists():
+                    return QDir(str(save_path))
+            
+            # If none exist, default to vampire/save for new saves
+            fallback = self.gameDirectory().absoluteFilePath("vampire/save")
+            return QDir(fallback)
+
+        # If GameData has a value, use it as before
+        virtual_path = f"{game_data}/save"
+        real_path = self._organizer.resolvePath(virtual_path)
+
+        if real_path:
+            return QDir(real_path)
+
+        fallback = self.gameDirectory().absoluteFilePath(virtual_path)
+        return QDir(fallback)
 
     def version(self):
         # Don't forget to import mobase!
         return mobase.VersionInfo(1, 0, 0, mobase.ReleaseType.FINAL)
 
     def iniFiles(self):
-        return ["autoexec.cfg", "user.cfg"]
+        cfg_mod = self._read_cfg_mod_from_ini()
+        
+        if cfg_mod:
+            # Use specific cfg mod directory
+            cfg_path = Path(self._organizer.modsPath()) / cfg_mod / "cfg"
+        else:
+            # Use the detected documents directory (which has the dynamic detection logic)
+            cfg_path = Path(self.documentsDirectory().absolutePath())
+        
+        cfg_files = []
+        if cfg_path.exists():
+            cfg_files = [f.name for f in cfg_path.glob("*.cfg") if f.is_file()]
+        
+        return cfg_files if cfg_files else []
 
     def listSaves(self, folder: QDir) -> List[mobase.ISaveGame]:
         ext = self._mappings.savegameExtension.get()
@@ -100,3 +275,33 @@ class VampireTheMasqueradeBloodlinesGame(BasicGame):
             VampireSaveGame(path)
             for path in Path(folder.absolutePath()).glob(f"*.{ext}")
         ]
+
+    def documentsDirectory(self) -> QDir:
+        cfg_mod = self._read_cfg_mod_from_ini()
+        
+        if cfg_mod:
+            cfg_path = Path(self._organizer.modsPath()) / cfg_mod / "cfg"
+            return QDir(str(cfg_path))
+        
+        game_data = self._read_game_data_from_ini()
+        
+        # If GameData is blank, check common cfg locations in order of preference
+        if not game_data:
+            # Check for common cfg directories (Unofficial Patch first)
+            potential_cfg_dirs = [
+                "Unofficial_Patch/cfg",  # Unofficial Patch location (check first)
+                "vampire/cfg",           # Stock game location
+                "cfg",                   # Root cfg location
+            ]
+            
+            for cfg_dir in potential_cfg_dirs:
+                cfg_path = Path(self.gameDirectory().absolutePath()) / cfg_dir
+                if cfg_path.exists():
+                    return QDir(str(cfg_path))
+            
+            # If none exist, default to vampire/cfg
+            fallback = self.gameDirectory().absoluteFilePath("vampire/cfg")
+            return QDir(fallback)
+        
+        # If GameData has a value, use it as before
+        return QDir(self.gameDirectory().absoluteFilePath(f"{game_data}/cfg"))
