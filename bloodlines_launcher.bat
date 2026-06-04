@@ -123,6 +123,7 @@ echo [DEBUG] Selected profile: %LATEST_PROFILE% >> "%DEBUG_LOG%"
 set "PROFILE_DIR=%PROFILES_DIR%\%LATEST_PROFILE%"
 set "INI_FILE=%PROFILE_DIR%\bloodlines.ini"
 set "ARGUMENTS="
+set "SAVES_MOD="
 
 echo [DEBUG] Reading from: %INI_FILE% >> "%DEBUG_LOG%"
 
@@ -133,9 +134,73 @@ if exist "%INI_FILE%" (
             for /f "tokens=*" %%c in ("%%b") do set "ARGUMENTS=%%c"
             echo [DEBUG] Found arguments: [!ARGUMENTS!] >> "%DEBUG_LOG%"
         )
+        if /i "%%a"=="Saves" (
+            :: Trim leading spaces
+            for /f "tokens=*" %%c in ("%%b") do set "SAVES_MOD=%%c"
+            echo [DEBUG] Found Saves mod: [!SAVES_MOD!] >> "%DEBUG_LOG%"
+        )
     )
 ) else (
     echo [ERROR] bloodlines.ini not found in profile directory >> "%DEBUG_LOG%"
+)
+
+:: ----- accept mode arg (window default) and append to arguments -----
+set "MODE=window"
+if not "%~1"=="" (
+    if /i "%~1"=="fullscreen" (
+        set "MODE=fullscreen"
+    ) else if /i "%~1"=="window" (
+        set "MODE=window"
+    )
+)
+if not "!ARGUMENTS!"=="" (
+    set "ARGUMENTS=!ARGUMENTS! -%MODE%"
+) else (
+    set "ARGUMENTS=-%MODE%"
+)
+
+:: Handle Saves mod folder if specified
+if not "%SAVES_MOD%"=="" (
+    echo [DEBUG] Saves mod specified: %SAVES_MOD% >> "%DEBUG_LOG%"
+    
+    :: Find MO2's mods directory
+    set "MODS_DIR="
+    if exist "%SCRIPT_DIR%mods" (
+        set "MODS_DIR=%SCRIPT_DIR%mods"
+        echo [DEBUG] Found mods directory: %SCRIPT_DIR%mods >> "%DEBUG_LOG%"
+    ) else if exist "%SCRIPT_DIR%..\mods" (
+        set "MODS_DIR=%SCRIPT_DIR%..\mods"
+        echo [DEBUG] Found mods directory: %SCRIPT_DIR%..\mods >> "%DEBUG_LOG%"
+    ) else (
+        echo [DEBUG] Could not find MO2 mods directory >> "%DEBUG_LOG%"
+        echo [ERROR] Saves mod specified but mods directory not found
+        pause
+        exit /b 1
+    )
+    
+    set "TARGET_MOD_DIR=!MODS_DIR!\!SAVES_MOD!"
+    echo [DEBUG] Checking for mod directory: !TARGET_MOD_DIR! >> "%DEBUG_LOG%"
+    echo [DEBUG] MODS_DIR: !MODS_DIR! >> "%DEBUG_LOG%"
+    echo [DEBUG] SAVES_MOD: !SAVES_MOD! >> "%DEBUG_LOG%"
+    
+    :: List what's actually in the mods directory for debugging
+    echo [DEBUG] Contents of mods directory: >> "%DEBUG_LOG%"
+    for /d %%d in ("!MODS_DIR!\*") do (
+        echo [DEBUG] - %%~nxd >> "%DEBUG_LOG%"
+    )
+    
+    :: Check if the mod directory exists
+    if not exist "!TARGET_MOD_DIR!" (
+        echo [ERROR] Saves mod directory does not exist: !TARGET_MOD_DIR! >> "%DEBUG_LOG%"
+        echo [ERROR] Mod directory '!SAVES_MOD!' not found in MO2 mods folder
+        echo [ERROR] Please create the mod in MO2 first or check the Saves setting in bloodlines.ini
+        echo [DEBUG] Check debug log for directory listing: %DEBUG_LOG%
+        pause
+        exit /b 1
+    )
+    
+    echo [INFO] Using mod folder for saves: %SAVES_MOD%
+    echo [INFO] Files will be created in: !TARGET_MOD_DIR!
 )
 
 :: Launch the game with whatever arguments we have (empty is fine)
