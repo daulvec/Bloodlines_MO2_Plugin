@@ -65,6 +65,21 @@ For complete installation:
    - **Arguments**: (leave blank)
    - **Working Directory**: `[Path to your game installation]`
 
+### Launcher Arguments
+
+The optional `bloodlines_launcher.bat` supports a simple mode argument to control windowed or fullscreen launch mode.
+
+- When adding the launcher in MO2 set the **Binary** to the full path to `bloodlines_launcher.bat` and set **Arguments** to either `window` or `fullscreen` (no quotes).
+- If no mode argument is provided the launcher defaults to `window`.
+- The launcher will read the profile's `bloodlines.ini` `Arguments=` value (for example `-game Unofficial_Patch`) and then append the selected mode flag (`-window` or `-fullscreen`) to the final command line it passes to `vampire.exe`.
+
+Examples:
+
+- MO2 Executable `Binary`: `G:\Fashionista Stock Game\bloodlines_launcher.bat`
+- MO2 Executable `Arguments`: `fullscreen`
+
+This lets you keep per-profile `Arguments=` values in `bloodlines.ini` and choose windowed or fullscreen mode when launching from MO2.
+
 ## Setting up vampire.exe in MO2 if not using bloodlines_launcher.bat
 
 1. In MO2, go to the executable dropdown and select "Edit..."
