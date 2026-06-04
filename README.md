@@ -62,7 +62,7 @@ For complete installation:
 2. Add a new executable:
    - **Title**: `Bloodlines Launcher` (or any name you prefer)
    - **Binary**: `[Path to your MO2]\bloodlines_launcher.bat`
-   - **Arguments**: (leave blank)
+   - **Arguments**: (leave blank or use window or fullscreen)
    - **Working Directory**: `[Path to your game installation]`
 
 ### Launcher Arguments
