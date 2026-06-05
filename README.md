@@ -1,102 +1,103 @@
-# Bloodlines MO2 Plugin & Launcher
+# Bloodlines MO2 Plugin
 
-MO2 plugin for Vampire: The Masquerade - Bloodlines with per-profile configuration and save management.
+Mod Organizer 2 plugin for *Vampire: The Masquerade – Bloodlines* with per-profile configuration and save management.
+
+---
 
 ## Features
 
-### Plugin Features
-- Automatic save location detection
-- Per-profile configuration via bloodlines.ini
-- Multiple save location support
-- Stock game, Unofficial Patch, and custom mod support
-- MO2 game management integration
+### Core Capabilities
 
-### Launcher Features
-- Reads game path from ModOrganizer.ini
-- Current MO2 profile detection
-- Profile-specific launch arguments
-- Wabbajack modlist compatibility
+* Automatic save location detection
+* Per-profile configuration via `bloodlines.ini`
+* Multiple save location support
+* Supports:
+
+  * Stock game
+  * Unofficial Patch (UP / UP+)
+  * Custom overhauls
+* Native MO2 integration (no external launcher required)
+
+---
 
 ## Components
 
-### 1. MO2 Plugin (`game_vampirebloodlines.py`) (Required)
-Provides Bloodlines game support in MO2.
+### Required
 
-### 2. Standalone Launcher (`bloodlines_launcher.bat`) (Optional)
-Batch script for launching Bloodlines with profile-specific arguments. Designed for Wabbajack integration.
+* `game_vampirebloodlines.py`
+  Provides Bloodlines support inside MO2.
 
-## Quick Start
-
-Setup steps:
-
-1. Copy `game_vampirebloodlines.py` to `ModOrganizer2/plugins/basic_games/games/`
-2. Restart Mod Organizer 2
-3. Select "Vampire - The Masquerade: Bloodlines" as managed game
-4. Configure arguments in profile `bloodlines.ini` files as needed
+---
 
 ## Installation
 
-For complete installation:
-
-### File Structure
+### File Placement
 
 ```text
 [MO2 Installation Directory]/
 ├── ModOrganizer.exe
-└── plugins/                          # MO2 plugin files (required)
+└── plugins/
     └── basic_games/
         └── games/
-            └── game_vampirebloodlines.py    # Required MO2 plugin file
-├── bloodlines_launcher.bat           # Optional launcher
+            └── game_vampirebloodlines.py
 ```
 
-### Installation Steps
-1. **Required**: Copy `game_vampirebloodlines.py` to `ModOrganizer2/plugins/basic_games/games/`
-2. **Optional**: Copy `bloodlines_launcher.bat` to MO2 directory
-3. Restart Mod Organizer 2
-4. Select "Vampire - The Masquerade: Bloodlines" as managed game
+### Steps
 
-## Setting Up the bloodlines_launcher.bat file in MO2
+1. Copy `game_vampirebloodlines.py` into:
 
-1. In MO2, go to the executable dropdown and select "Edit..."
+   ```
+   ModOrganizer2/plugins/basic_games/games/
+   ```
+2. Restart Mod Organizer 2
+3. Select **"Vampire - The Masquerade: Bloodlines"** as the managed game
+
+---
+
+## Executable Setup (MO2)
+
+1. Open MO2 → Executables → **Edit**
+
 2. Add a new executable:
+<<<<<<< HEAD
+=======
    - **Title**: `Bloodlines Launcher` (or any name you prefer)
    - **Binary**: `[Path to your MO2]\bloodlines_launcher.bat`
    - **Arguments**: (leave blank or use window or fullscreen)
    - **Working Directory**: `[Path to your game installation]`
+>>>>>>> 562112195e0c4a51f08d6e53f3bc089aeb47eca2
 
-### Launcher Arguments
+   * **Title**: `Bloodlines`
+   * **Binary**: `<Game Path>\vampire.exe`
+   * **Working Directory**: `<Game Path>`
+   * **Arguments** (optional):
 
-The optional `bloodlines_launcher.bat` supports a simple mode argument to control windowed or fullscreen launch mode.
+     ```
+     -game Unofficial_Patch -window
+     ```
 
-- When adding the launcher in MO2 set the **Binary** to the full path to `bloodlines_launcher.bat` and set **Arguments** to either `window` or `fullscreen` (no quotes).
-- If no mode argument is provided the launcher defaults to `window`.
-- The launcher will read the profile's `bloodlines.ini` `Arguments=` value (for example `-game Unofficial_Patch`) and then append the selected mode flag (`-window` or `-fullscreen`) to the final command line it passes to `vampire.exe`.
+3. (Optional) Create multiple executables for different overhauls
+   Example:
 
-Examples:
+   * `UP`
+   * `CQM`
+   * `Antitribu`
 
-- MO2 Executable `Binary`: `G:\Fashionista Stock Game\bloodlines_launcher.bat`
-- MO2 Executable `Arguments`: `fullscreen`
+4. Profile-level configuration in `bloodlines.ini` will override executable arguments when present
 
-This lets you keep per-profile `Arguments=` values in `bloodlines.ini` and choose windowed or fullscreen mode when launching from MO2.
+---
 
-## Setting up vampire.exe in MO2 if not using bloodlines_launcher.bat
+## Profile Configuration (`bloodlines.ini`)
 
-1. In MO2, go to the executable dropdown and select "Edit..."
-2. Add a new executable:
-   - **Title**: `Bloodlines` (or any name you prefer)
-   - **Binary**: `[Path to your game installation]\vampire.exe`
-   - **Arguments**: Add your launch arguments here (e.g., `-game Unofficial_Patch -window`)
-   - **Working Directory**: `[Path to your game installation]`
-3. Create separate executables for different overhauls with different arguments
-4. Configure profile-specific arguments in `bloodlines.ini` files to override executable settings
+Location:
 
-## bloodlines.ini Configuration
+```
+ModOrganizer2/profiles/<Profile Name>/bloodlines.ini
+```
 
-Create or edit `bloodlines.ini` in each profile directory:
-`ModOrganizer2/profiles/[Profile Name]/bloodlines.ini`
+Auto-generated when creating a profile, but can be created manually.
 
-The Bloodlines.ini should be auto created when you make a new profile in MO2 in the proper location but you can also manually create it if needed.
+### Example
 
 ```ini
 [GAME]
@@ -106,93 +107,203 @@ CfgMod=Unofficial_Patch Plus Override
 Arguments=-game Unofficial_Patch -window
 ```
 
+---
+
+## Configuration Reference
+
 ### Arguments
-Launch arguments for the game. Used by both the launcher script and MO2 direct launching.
-This is normally used for Mod Folder switching with the -game argument or
 
-**Common argument examples:**
-- `-game Unofficial_Patch ` - Launch Unofficial Patch
-- `-window` - Launch the game in windowed mode.
+Launch arguments passed to `vampire.exe`.
 
-Arguments can be combined
+Typical usage:
+
+* `-game <mod folder>` → selects overhaul
+* `-window` → windowed mode
+
+---
 
 ### GameData
-Specify a subdirectory for game data files.
-- Leave blank to use the game root directory
-- Set to "vampire" for stock game structure  
-- Set to "Unofficial_Patch" when UP is installed in game folder
-- If using another overhaul, check its documentation for the correct argument
+
+Defines which subdirectory is treated as the active game data root.
+
+* Blank → root `/vampire`
+* `vampire` → vanilla structure
+* `Unofficial_Patch` → UP install
+* Custom overhaul → use its folder name
+
+---
 
 ### Saves
-Override save game location with a specific mod in MO2.
-- Mostly useful for keeping saves seperated between Overhauls
-  - To do this use the "create files in mod instead of overwrite" on the exe in MO2
-- Leave blank for automatic detection
-- Set to mod name to use that mod's save directory
+
+Overrides save location.
+
+Use cases:
+
+* Separate saves per overhaul
+* Redirect saves into MO2-managed mods
+
+Behavior:
+
+* Blank → automatic detection
+* Set to mod name → saves written to that mod
+
+Recommended:
+Enable **"Create files in mod instead of overwrite"** for the executable when using this.
+
+---
 
 ### CfgMod
-Override configuration file location.
-- Leave blank for automatic detection  
-- Set to mod name to use that mod's cfg directory
-- Mostly useful for keeping cfg seperated between Overhauls
+
+Overrides configuration file location.
+
+* Blank → automatic detection
+* Set to mod name → isolates config per overhaul
+
+---
+
+## Recommendations
+
+### 1. Use MO2-Native Execution Only
+
+Avoid external launchers or batch wrappers.
+
+Reasons:
+
+* MO2 VFS injection is reliable with `vampire.exe`
+* External launchers frequently break file virtualization
+* Argument handling is already supported via:
+
+  * Executables
+  * `bloodlines.ini`
+
+---
+
+### 2. Prefer Profile-Level Configuration
+
+Treat each overhaul as a separate MO2 profile.
+
+Benefits:
+
+* Isolated saves
+* Isolated configs
+* No argument conflicts
+* Cleaner debugging
+
+Minimum setup per profile:
+
+```ini
+GameData=<mod>
+Arguments=-game <mod>
+```
+
+---
+
+### 3. Use Profile Executable Selector (Recommended)
+
+Use SulfurNitride’s plugin to bind executables per profile.
+
+Purpose:
+
+* Assign default executable per profile
+* Hide irrelevant executables
+* Remove manual switching overhead
+
+This replaces older workflow patterns that relied on:
+
+* Batch files
+* Launcher scripts
+* Manual argument switching
+
+---
+
+### 4. Keep Overhauls Physically Separate
+
+Each overhaul should exist as its own directory inside the game folder:
+
+```text
+/vampire
+/Unofficial_Patch
+/CQM
+/Antitribu_Mod
+```
+
+Do not merge or overlap directories.
+
+---
+
+### 5. Avoid `loader.exe`
+
+Do not use `loader.exe` through MO2.
+
+Reason:
+
+* Known incompatibility with MO2’s virtual file system
+
+Use:
+
+```
+vampire.exe -game <mod>
+```
+
+---
 
 ## Troubleshooting
 
-### Launcher Issues
+### Game Does Not Launch
 
-#### Game not launching
-1. Check that `ModOrganizer.ini` exists in your MO2 directory
-2. Verify the game path in ModOrganizer.ini is correct
-3. Ensure `vampire.exe` exists at the configured game path
-4. Check the debug log at `%TEMP%\bloodlines_launcher_debug.log`
+* Confirm `vampire.exe` is used
+* Verify working directory is correct
+* Check arguments for typos
 
-#### Wrong profile being detected
-1. Make sure you've selected the correct profile in MO2 before running the launcher
-2. Check that the profile has a `bloodlines.ini` file
-3. Verify the profile name matches what's in ModOrganizer.ini
+---
 
-### General Issues
+### Mods Not Loading
 
-#### Loader.exe will not launch through MO2
-MO2 has issues with launching this file through the Virtual File System. Use `vampire.exe` instead and set launch arguments:
-- Use the launcher script (recommended)
-- Or set arguments manually: `-game Unofficial_Patch -window`
+* Verify correct `-game` argument
+* Confirm mod folder exists in game directory
+* Check `GameData` matches folder name
 
-#### Mods are not loading
-- Ensure you're using the correct `-game` argument for your overhaul
-- Check that the mod directory exists in your game folder
-- Common overhauls: `Unofficial_Patch`, `CE_reborn`, `CQM`, `Antitribu_Mod`
+---
 
-### Plugin-Specific Issues (Full Installation Only)
+### Saves Not Detected
 
-#### Save Games Not Detected
-1. Check that save files exist in expected locations
-2. Verify GameData and Saves settings in bloodlines.ini
-3. Ensure proper directory structure in game folder
+* Confirm save files exist
+* Check `Saves` override setting
+* Ensure MO2 overwrite behavior is configured correctly
 
-#### Configuration Files Not Loading
-1. Confirm CFG files exist in the detected directory
-2. Check CfgMod setting in bloodlines.ini
-3. Verify file permissions in game directories
+---
 
-### Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+### Config Files Not Applied
+
+* Verify `CfgMod` value
+* Confirm config files exist in expected location
+* Check file permissions
+
+---
+
+## Contributing
+
+Pull requests are accepted. For structural changes, open an issue first.
+
+---
 
 ## License
 
-This project is licensed under the GPL-3.0 License - see the LICENSE file for details.
+GPL-3.0 License
+
+---
 
 ## Acknowledgments
 
-- The Mod Organizer 2 development team
-- The Vampire: The Masquerade - Bloodlines modding community
-- Wesp5 for the Unofficial Patch
-- Everyone in the iAmModlist discord for all there help.
+* Mod Organizer 2 team
+* Bloodlines modding community
+* Wesp5 (Unofficial Patch)
+* Thanks to SulfurNitride for the Profile Executable Selector plugin.
+* Thanks to the Wabbajack community, especially iAmMe, Gallahorn, Luca | EzioTheDeadPoet, iAmMascha, Swagmeister, Zeefa, Schrubbls, Neochiken, ShifuYaku, Kaeltis, Decimal, Miss Corruption, Scrab, and others for their help, encouragement, and patience.
+
+---
 
 ## Support
 
-For issues, questions, or feature requests, please use the GitHub Issues page.
-
-Or I can be found in the Fashionista Channels in this Discord
-
-<https://discord.gg/iAmModlist>
+* GitHub Issues
+* iAmModlist Discord
