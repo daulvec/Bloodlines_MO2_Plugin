@@ -65,7 +65,6 @@ Mod Organizer 2 plugin for *Vampire: The Masquerade – Bloodlines* with per-pro
    - **Binary**: `[Path to your MO2]\bloodlines_launcher.bat`
    - **Arguments**: (leave blank or use window or fullscreen)
    - **Working Directory**: `[Path to your game installation]`
->>>>>>> 562112195e0c4a51f08d6e53f3bc089aeb47eca2
 
    * **Title**: `Bloodlines`
    * **Binary**: `<Game Path>\vampire.exe`
