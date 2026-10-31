@@ -14,7 +14,7 @@ Mod Organizer 2 plugin for *Vampire: The Masquerade – Bloodlines*
 └── plugins/
     └── basic_games/
         └── games/
-      └── game_vampirebloodlines.py
+          └── game_vampirebloodlines.py
 ```
 
 ### Steps
@@ -41,18 +41,18 @@ But other Overhauls might use another Patch such as Clan Quest mod using `CQM` s
 
 I have listed all the ones I am aware of below
 
-Unoffical_Patch
-Antitribu_Mod
-Barabbah_Addon
-Bloodlines_Prelude_I
-Bloodlines_Prelude_II
-CQU
-Comp_Mod
-CE_reborn
-LAbyNightV2
-Undisciplined_Caitiff
-War_Games
-TFN_reborn
+- noffical_Patch
+- Antitribu_Mod
+- Barabbah_Addon
+- Bloodlines_Prelude_I
+- Bloodlines_Prelude_II
+- CQU
+- Comp_Mod
+- CE_reborn
+- LAbyNightV2
+- Undisciplined_Caitiff
+- War_Games
+- TFN_reborn
 
 When using Root Builder, each overhaul needs a target folder under the actual game installation, for example `<Game Path>\Unofficial_Patch` or `<Game Path>\CQM`. Remember that Root builder will clear anything out of the folder so you probably need to delete the Backup and Cache and then create that folders, then rebuild Root Builder.
 
