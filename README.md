@@ -1,31 +1,6 @@
 # Bloodlines MO2 Plugin
 
-Mod Organizer 2 plugin for *Vampire: The Masquerade – Bloodlines* with per-profile configuration and save management.
-
----
-
-## Features
-
-### Core Capabilities
-
-* Automatic save location detection
-* Per-profile configuration via `bloodlines.ini`
-* Multiple save location support
-* Supports:
-
-  * Stock game
-  * Unofficial Patch (UP / UP+)
-  * Custom overhauls
-* Native MO2 integration (no external launcher required)
-
----
-
-## Components
-
-### Required
-
-* `game_vampirebloodlines.py`
-  Provides Bloodlines support inside MO2.
+Mod Organizer 2 plugin for *Vampire: The Masquerade – Bloodlines*
 
 ---
 
@@ -39,7 +14,7 @@ Mod Organizer 2 plugin for *Vampire: The Masquerade – Bloodlines* with per-pro
 └── plugins/
     └── basic_games/
         └── games/
-            └── game_vampirebloodlines.py
+      └── game_vampirebloodlines.py
 ```
 
 ### Steps
@@ -56,34 +31,30 @@ Mod Organizer 2 plugin for *Vampire: The Masquerade – Bloodlines* with per-pro
 
 ## Executable Setup (MO2)
 
-1. Open MO2 → Executables → **Edit**
+You might need to change the Argument on the `vampire.exe` to point torwards the path of the Overhaul you are using.
 
-2. Add a new executable:
-<<<<<<< HEAD
-=======
-   - **Title**: `Bloodlines Launcher` (or any name you prefer)
-   - **Binary**: `[Path to your MO2]\bloodlines_launcher.bat`
-   - **Arguments**: (leave blank or use window or fullscreen)
-   - **Working Directory**: `[Path to your game installation]`
->>>>>>> 562112195e0c4a51f08d6e53f3bc089aeb47eca2
+This is normally
 
-   * **Title**: `Bloodlines`
-   * **Binary**: `<Game Path>\vampire.exe`
-   * **Working Directory**: `<Game Path>`
-   * **Arguments** (optional):
+`-game Unofficial_Patch`
 
-     ```
-     -game Unofficial_Patch -window
-     ```
+But other Overhauls might use another Patch such as Clan Quest mod using `CQM` so in these cases you would use `-game CQM` or whatever the folder that the overhaul uses
 
-3. (Optional) Create multiple executables for different overhauls
-   Example:
+I have listed all the ones I am aware of below
 
-   * `UP`
-   * `CQM`
-   * `Antitribu`
+Unoffical_Patch
+Antitribu_Mod
+Barabbah_Addon
+Bloodlines_Prelude_I
+Bloodlines_Prelude_II
+CQU
+Comp_Mod
+CE_reborn
+LAbyNightV2
+Undisciplined_Caitiff
+War_Games
+TFN_reborn
 
-4. Profile-level configuration in `bloodlines.ini` will override executable arguments when present
+When using Root Builder, each overhaul needs a target folder under the actual game installation, for example `<Game Path>\Unofficial_Patch` or `<Game Path>\CQM`. Remember that Root builder will clear anything out of the folder so you probably need to delete the Backup and Cache and then create that folders, then rebuild Root Builder.
 
 ---
 
@@ -101,149 +72,41 @@ Auto-generated when creating a profile, but can be created manually.
 
 ```ini
 [GAME]
+; Game-data folder under the game directory; use the matching MO2 executable.
+; Blank defaults to vampire.
 GameData=Unofficial_Patch
-Saves=Unofficial_Patch Plus Override
-CfgMod=Unofficial_Patch Plus Override
-Arguments=-game Unofficial_Patch -window
 ```
 
 ---
 
 ## Configuration Reference
 
-### Arguments
-
-Launch arguments passed to `vampire.exe`.
-
-Typical usage:
-
-* `-game <mod folder>` → selects overhaul
-* `-window` → windowed mode
-
----
-
 ### GameData
 
-Defines which subdirectory is treated as the active game data root.
+Defines which game subdirectory is used as the active data root.
 
-* Blank → root `/vampire`
-* `vampire` → vanilla structure
+* Default → `{blank}`
+* Blank → treated as `vampire`
 * `Unofficial_Patch` → UP install
 * Custom overhaul → use its folder name
 
 ---
 
-### Saves
+### Profile-Specific Saves and INI Files
 
-Overrides save location.
+Enable **Profile-specific saves** and **Profile-specific game INI files** in MO2's profile settings to keep these files separate per profile without creating dedicated MO2 mods.
 
-Use cases:
-
-* Separate saves per overhaul
-* Redirect saves into MO2-managed mods
-
-Behavior:
-
-* Blank → automatic detection
-* Set to mod name → saves written to that mod
-
-Recommended:
-Enable **"Create files in mod instead of overwrite"** for the executable when using this.
-
----
-
-### CfgMod
-
-Overrides configuration file location.
-
-* Blank → automatic detection
-* Set to mod name → isolates config per overhaul
-
----
-
-## Recommendations
-
-### 1. Use MO2-Native Execution Only
-
-Avoid external launchers or batch wrappers.
-
-Reasons:
-
-* MO2 VFS injection is reliable with `vampire.exe`
-* External launchers frequently break file virtualization
-* Argument handling is already supported via:
-
-  * Executables
-  * `bloodlines.ini`
-
----
-
-### 2. Prefer Profile-Level Configuration
-
-Treat each overhaul as a separate MO2 profile.
-
-Benefits:
-
-* Isolated saves
-* Isolated configs
-* No argument conflicts
-* Cleaner debugging
-
-Minimum setup per profile:
-
-```ini
-GameData=<mod>
-Arguments=-game <mod>
-```
-
----
-
-### 3. Use Profile Executable Selector (Recommended)
-
-Use SulfurNitride’s plugin to bind executables per profile.
-
-Purpose:
-
-* Assign default executable per profile
-* Hide irrelevant executables
-* Remove manual switching overhead
-
-This replaces older workflow patterns that relied on:
-
-* Batch files
-* Launcher scripts
-* Manual argument switching
-
----
-
-### 4. Keep Overhauls Physically Separate
-
-Each overhaul should exist as its own directory inside the game folder:
+When profile-specific saves are enabled, MO2 stores saves in:
 
 ```text
-/vampire
-/Unofficial_Patch
-/CQM
-/Antitribu_Mod
+ModOrganizer2/profiles/<Profile Name>/saves/
 ```
 
-Do not merge or overlap directories.
+While the game runs, the plugin maps `<MO2>/profiles/<Profile Name>/saves/` to `<Game Path>/<GameData>/save/`. For example, an Unofficial Patch profile maps its saves to `<Game Path>/Unofficial_Patch/save/`. With profile-specific saves disabled, the game uses the game-data folder's `save` directory directly.
 
----
+With profile-specific game INI files enabled, MO2 keeps `autoexec.cfg` and `user.cfg` in the profile folder and uses them in place of files under `<GameData>/cfg`. These filenames are registered by the plugin even when Root Builder keeps the source CFG files virtual.
 
-### 5. Avoid `loader.exe`
-
-Do not use `loader.exe` through MO2.
-
-Reason:
-
-* Known incompatibility with MO2’s virtual file system
-
-Use:
-
-```
-vampire.exe -game <mod>
-```
+`GameData` remains in `bloodlines.ini` because it identifies which game folder the profile uses. Save and CFG paths are managed by MO2's profile settings; there is no `ModName`, `Saves`, or `CfgMod` setting in the new INI format.
 
 ---
 
@@ -251,9 +114,8 @@ vampire.exe -game <mod>
 
 ### Game Does Not Launch
 
-* Confirm `vampire.exe` is used
-* Verify working directory is correct
-* Check arguments for typos
+* Confirm the matching `Bloodlines - <folder>` executable is selected in MO2
+* Verify the active profile's `GameData` folder exists under the game directory
 
 ---
 
@@ -268,15 +130,16 @@ vampire.exe -game <mod>
 ### Saves Not Detected
 
 * Confirm save files exist
-* Check `Saves` override setting
-* Ensure MO2 overwrite behavior is configured correctly
+* Confirm **Profile-specific saves** is enabled if saves should be in the profile
+* Confirm the matching `<Game Path>/<GameData>` target folder exists when using Root Builder
+* Check the active profile's `saves` folder; existing Overwrite saves are not moved automatically
 
 ---
 
 ### Config Files Not Applied
 
-* Verify `CfgMod` value
-* Confirm config files exist in expected location
+* Confirm profile-specific game INI files are enabled in MO2
+* Confirm `autoexec.cfg` and `user.cfg` exist in the active profile folder
 * Check file permissions
 
 ---
