@@ -41,7 +41,7 @@ But other Overhauls might use another Patch such as Clan Quest mod using `CQM` s
 
 I have listed all the ones I am aware of below
 
-- noffical_Patch
+- Unoffical_Patch
 - Antitribu_Mod
 - Barabbah_Addon
 - Bloodlines_Prelude_I
